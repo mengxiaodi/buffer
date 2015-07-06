@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>减速运动</title>
+</head>
+
+<body>
+	<style type="text/css">
+	#fo{ width:100px; height:100px; background:#f00; position:absolute; left:600px; top:0px;}
+	#right{ display:inline-block; padding:10px; background:#fdd; color:#000; font-weight:bold; margin:100px;}
+	</style>
+	<div id="fo"></div>
+	<a href="javascript:;" id="right">right</a>
+	<script type="text/javascript">
+		/*
+			减速运动的算法解释:
+			buffer(ele,attr,target) 
+			target表示目标值
+			ele表示元素
+			attr表示属性(指的是宽度，高度，left，top等数值，不包含一些其他的透明度或者颜色值)
+			算法的详细：
+				当target大于cur，并且以他们的距离除以一个合适的整数的得到步长值时候，相当于把他们的距离分成了整数份，每次走整数份中的一份，重复这样。
+				当剩下距离的接近那个合适的整数的时候，它们所除以的商，即它们的步长值无限接近1。（也就是每次它们走的可能是2，因为向上取整了）
+				当剩下的距离小于那个合适的整数的时候，它们除以的商，即步长值，无限接近0，但这时每次按照1来走，因为向上取整了
+				这时步长值为0.几，每次走1，距离越来越小，然后为0
+				最终走到终点。
+			
+				 1，公式：目标值减去当前所走的值，然后除以一个合适的数值。由于每次走一点，每次走一点，所以目标值减去当前值肯定会越来越小，所以是减速的。
+				 2，速度：因为速度会原来越慢，当速度等于0的时候，就应该清楚定时器。所以判断速度是否为零来清除定时器。速度有可能是正，也有可能是负（目标值-当前值）。所以用个ceil floor
+				 3，定时器:由于这个是个函数，每个元素都有可能调用。如果多个元素调用，只能是先清除掉别的元素动画，然后进行当前元素的动画。所以，只能给元素属性，这样就不会重复。
+				 
+		*/
+		function getCss(ele,attr){
+			if(window.getComputedStyle){
+				return parseFloat(getComputedStyle(ele,null)[attr]);
+			}else{
+				return parseFloat(ele.currentStyle[attr]);	
+			}	
+		}
+		function getId(e){
+			return document.getElementById(e);	
+		}
+		function buffer(ele,attr,target){
+			_buffer();
+			function _buffer(){
+				var cur=getCss(ele,attr);	
+				clearTimeout(ele.timer);
+				var nspeed=(target-cur)/13;
+				nspeed = nspeed >0 ? Math.ceil(nspeed) : Math.floor(nspeed);
+				ele.style[attr]=cur+nspeed+"px";
+				if(nspeed){
+					ele.timer=window.setTimeout(_buffer,20);
+				}
+			}
+		}
+		var box=getId("fo");
+		var leftBtn=getId("left");
+		var rightBtn=getId("right");
+		rightBtn.onclick=function(){
+			buffer(box,'left',0);	
+		}
+
+	</script>
+	
+	
+	
+	
+	
+	
+	
+	
+</body>
+</html>
